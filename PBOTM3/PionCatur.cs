@@ -89,7 +89,7 @@ namespace Tugas1_PBO
         public static void Main()
         {
             // Membuat Header buat hiasan doank kok :D
-            Console.WriteLine("############### Informasi Iwak ############### ");
+            Console.WriteLine("############### Informasi Pion Catur ############### ");
             /* Membuat Instance dari Class Ikan
              Atau bisa disebut variable yang mereferensikan new object dari class tertera
              Atau lebih simple nya membuat object baru dari Class tertentu
