@@ -1,104 +1,81 @@
-﻿using System;
+using System;
 
 namespace Tugas1_PBO
 {
-    // Ini Super Class
-    class RekeningBank
+    // Superclass baru
+    class Rekening
     {
-        // Ini Atribut
-        protected string bank;
         protected long nomor_rekening;
-        protected int pin_atm;
-        protected double jumlah_saldo;
+        protected string pemilik;
+        protected double saldo;
 
-        // Ini Konstruktor
-        public RekeningBank(string bank,long nomor_rekening,int pin_atm,double jumlah_saldo)
+        public Rekening(long nomor_rekening, string pemilik, double saldo)
+        {
+            this.nomor_rekening = nomor_rekening;
+            this.pemilik = pemilik;
+            this.saldo = saldo;
+        }
+
+        public virtual void InformasiRekening()
+        {
+            Console.WriteLine($"> Pemilik: {pemilik}\n> No. Rekening: {nomor_rekening}\n> Saldo: {saldo}");
+        }
+    }
+
+    // Subclass dari Rekening
+    class RekeningBank : Rekening
+    {
+        private string bank;
+        private int pin;
+
+        public RekeningBank(string bank, long nomor_rekening, string pemilik, double saldo, int pin)
+            : base(nomor_rekening, pemilik, saldo)
         {
             this.bank = bank;
-            this.nomor_rekening = nomor_rekening;
-            this.pin_atm = pin_atm;
-            this.jumlah_saldo = jumlah_saldo;
+            this.pin = pin;
         }
-        /* Method untuk menampilkan atribut dan output dari Class RekeningBank
-             Virtual agar dapat digunakan juga oleh subclass nya*/
-        public virtual void informasi_rekening()
+
+        public void Setor(double jumlah)
         {
-            Console.WriteLine($"> Nama Bank: {bank}\n> No.Rekening: {nomor_rekening}\n> PIN: {pin_atm}\n> Total Saldo: {jumlah_saldo}");
+            saldo += jumlah;
+            Console.WriteLine($"Setoran sebesar {jumlah} berhasil! Saldo sekarang: {saldo}");
+        }
+
+        public void Tarik(double jumlah, int inputPin)
+        {
+            if (inputPin != pin)
+            {
+                Console.WriteLine("PIN salah! Transaksi gagal.");
+                return;
+            }
+            if (jumlah > saldo)
+            {
+                Console.WriteLine("Saldo tidak cukup!");
+                return;
+            }
+            saldo -= jumlah;
+            Console.WriteLine($"Penarikan sebesar {jumlah} berhasil! Saldo sekarang: {saldo}");
+        }
+
+        public override void InformasiRekening()
+        {
+            base.InformasiRekening();
+            Console.WriteLine($"> Bank: {bank}\n> PIN: ****");
         }
     }
-    // Ini SubClass
-    class BRI : RekeningBank
-    {
-        // Ini Atribut
-        private string id_nasabah;
-        private bool bunga;
 
-        // Ini Konstruktor
-        public BRI(string bank, long nomor_rekening, int pin_atm, double jumlah_saldo,string id_nasabah,bool bunga)
-            : base(bank,nomor_rekening,pin_atm,jumlah_saldo)
-        {
-            this.id_nasabah = id_nasabah;
-            this.bunga = bunga;
-        }
-
-        // Private method dari class BRI
-        private string about_BRI()
-        {
-            return $"ID nasabah dari bang {bank} adalah {id_nasabah}. Menerapkan sistem bunga = {bunga}";
-        }
-        /* Method untuk menampilkan atribut dan output dari Class BRI
-           Override agar subclass bisa mengubah output dari method yang ada di SuperClass RekeningBank*/
-        public override void informasi_rekening()
-        {
-            Console.WriteLine();
-            base.informasi_rekening();
-            Console.WriteLine(about_BRI());
-        }
-    }
-    class BSI : RekeningBank
-    {
-        // Ini Atribut
-        private string id_nasabah;
-        private bool bunga;
-
-        // Ini Konstruktor
-        public BSI(string bank, long nomor_rekening, int pin_atm, double jumlah_saldo, string id_nasabah, bool bunga)
-            : base(bank, nomor_rekening, pin_atm, jumlah_saldo)
-        {
-            this.id_nasabah = id_nasabah;
-            this.bunga = bunga;
-        }
-
-        // Private method dari class BRI
-        private string about_BSI()
-        {
-            return $"ID nasabah dari bang {bank} adalah {id_nasabah}. Menerapkan sistem bunga = {bunga}";
-        }
-        /* Method untuk menampilkan atribut dan output dari Class BSI
-           Override agar subclass bisa mengubah output dari method yang ada di SuperClass RekeningBank*/
-        public override void informasi_rekening()
-        {
-            Console.WriteLine();
-            base.informasi_rekening();
-            Console.WriteLine(about_BSI());
-        }
-    }
-    // Memulai Program
     class Program
     {
         public static void Main()
         {
-            // Membuat Header buat hiasan doank kok :D
-            Console.WriteLine("############### Informasi Rekening Bank ############### ");
-            /* Membuat Instance dari Class RekeningBank
-             Atau bisa disebut variable yang mereferensikan new object dari class tertera
-             Atau lebih simple nya membuat object baru dari Class tertentu
-             Properti dan metode didefinisikan dari Class yang direferensikan*/
-            BRI bri = new BRI("BRI",242410103041,1945,0,"BRI1357",true);
-            BSI bsi = new BSI("BSI",140301014242,1945,0,"BSI2468",false);
-            // Menampilkan Output dengan cara mengakses method dari Class menggunakan instance yang dibuat
-            bri.informasi_rekening();
-            bsi.informasi_rekening();
+            Console.WriteLine("############### Informasi Rekening ############### ");
+
+            RekeningBank rekening1 = new RekeningBank("Mandiri", 123456789, "Farell", 5000000, 1234);
+            rekening1.InformasiRekening();
+
+            rekening1.Setor(1000000);
+            rekening1.Tarik(2000000, 1234);
+            rekening1.Tarik(5000000, 1111);
         }
     }
 }
