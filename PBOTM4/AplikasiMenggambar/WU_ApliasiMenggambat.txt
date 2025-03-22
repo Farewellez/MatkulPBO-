@@ -1,0 +1,94 @@
+Write-Up: Aplikasi Menggambar Sederhana dengan C# dan WinForms
+
+1. Pendahuluan
+Aplikasi ini adalah sebuah proyek berbasis **C# dan Windows Forms (WinForms) yang memungkinkan pengguna untuk menggambar berbagai bentuk geometri di dalam panel gambar. Bentuk yang bisa digambar meliputi persegi, lingkaran, segitiga, persegi panjang, dan jajar genjang. Selain itu, aplikasi ini memiliki fitur untuk membersihkan canvas serta menyesuaikan tampilan ketika jendela diubah ukurannya.
+
+2. Struktur Program
+Program terdiri dari dua file utama:
+1. Form1.cs – berisi logika utama untuk menangani gambar dan event.
+2. Form1.Designer.cs – berisi elemen UI seperti tombol dan panel untuk menggambar.
+
+a. Enum untuk Jenis Bentuk
+Program menggunakan `enum ShapeType` untuk menyimpan bentuk yang dipilih:
+private enum ShapeType { None, Persegi, Lingkaran, Segitiga, PersegiPanjang, JajarGenjang }
+private ShapeType currentShape = ShapeType.None;
+
+Saat pengguna menekan tombol, nilai `currentShape` akan diperbarui.
+
+b. Menggambar Bentuk di Panel
+Ketika `panel2_Paint` dipanggil, program menggambar bentuk berdasarkan nilai `currentShape`:
+private void panel2_Paint(object sender, PaintEventArgs e)
+{
+    Graphics g = e.Graphics;
+    int scaledShapeSize = Math.Min(panel2.Width, panel2.Height) / 3;
+    int scaledShapeX = (panel2.Width - scaledShapeSize) / 2;
+    int scaledShapeY = (panel2.Height - scaledShapeSize) / 2;
+
+    switch (currentShape)
+    {
+        case ShapeType.Persegi:
+            g.DrawRectangle(Pens.Black, scaledShapeX, scaledShapeY, scaledShapeSize, scaledShapeSize);
+            break;
+        case ShapeType.Lingkaran:
+            g.DrawEllipse(Pens.Black, scaledShapeX, scaledShapeY, scaledShapeSize, scaledShapeSize);
+            break;
+        case ShapeType.PersegiPanjang:
+            g.DrawRectangle(Pens.Black, scaledShapeX, scaledShapeY, scaledShapeSize * 2, scaledShapeSize);
+            break;
+        case ShapeType.Segitiga:
+            Point[] points = {
+                new Point(scaledShapeX + scaledShapeSize / 2, scaledShapeY),
+                new Point(scaledShapeX, scaledShapeY + scaledShapeSize),
+                new Point(scaledShapeX + scaledShapeSize, scaledShapeY + scaledShapeSize)
+            };
+            g.DrawPolygon(Pens.Black, points);
+            break;
+        case ShapeType.JajarGenjang:
+            Point[] jajarGenjang = {
+                new Point(scaledShapeX + scaledShapeSize / 4, scaledShapeY),
+                new Point(scaledShapeX + scaledShapeSize, scaledShapeY),
+                new Point(scaledShapeX + (3 * scaledShapeSize) / 4, scaledShapeY + scaledShapeSize),
+                new Point(scaledShapeX, scaledShapeY + scaledShapeSize)
+            };
+            g.DrawPolygon(Pens.Black, jajarGenjang);
+            break;
+    }
+}
+Bentuk akan selalu disesuaikan dengan ukuran panel, sehingga tetap berada di tengah meskipun jendela diubah ukurannya.
+
+c. Event Handler untuk Tombol
+Setiap tombol memiliki event handler untuk mengubah `currentShape` dan menggambar ulang:
+private void btnPersegi_Click(object sender, EventArgs e)
+{
+    currentShape = ShapeType.Persegi;
+    panel2.Invalidate();
+}
+Metode `panel2.Invalidate();` digunakan untuk memicu `panel2_Paint`, sehingga bentuk akan diperbarui sesuai pilihan pengguna.
+
+d. Membersihkan Canvas
+Saat tombol "Clear Canvas" ditekan, bentuk dihapus dengan mengatur `currentShape = ShapeType.None`:
+
+private void btnClear_Click(object sender, EventArgs e)
+{
+    currentShape = ShapeType.None;
+    panel2.Invalidate();
+}
+
+e. Menyesuaikan UI saat Window Diubah Ukurannya
+Tombol akan tetap berada pada posisi relatifnya meskipun ukuran jendela berubah:
+
+private void Form1_Resize(object sender, EventArgs e)
+{
+    float scaleX = (float)this.ClientSize.Width / 900;
+    float scaleY = (float)this.ClientSize.Height / 400;
+    panel2.Invalidate();
+
+    foreach (var tombol in tombolAwal)
+    {
+        tombol.Key.Left = (int)(tombol.Value.X * scaleX);
+        tombol.Key.Top = (int)(tombol.Value.Y * scaleY);
+    }
+}
+
+3. Kesimpulan
+Aplikasi ini memungkinkan pengguna untuk menggambar berbagai bentuk dengan mudah dan tetap responsif saat jendela diperbesar atau diperkecil. Ini adalah langkah awal sebelum menambahkan fitur lebih lanjut seperti warna, ketebalan garis, atau ekspor gambar.
